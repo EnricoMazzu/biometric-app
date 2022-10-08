@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">BiometricApp</string>
+    <string name="login_screen_title">Login</string>
+    <string name="home_screen_title">Home</string>
+    <string name="username_placeholder">Username</string>
+    <string name="password_placeholder">Password</string>
+    <string name="login_button_text">Login</string>
+    <string name="home_content_message">This is the home page</string>
+    <string name="logout_button_text">Logout</string>
+    <string name="button_biometric_text">Use Biometric</string>
+    <string name="button_biometric_content_descr">Biometric Login button</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="msg_error_generic">Ops, something went wrong</string>
+    <string name="msg_error_key_permanently_invalidated">A new enrollment is required</string>
+    <string name="msg_error_key_init_fail">Unable to initiate biometric operation</string>
+</resources>
