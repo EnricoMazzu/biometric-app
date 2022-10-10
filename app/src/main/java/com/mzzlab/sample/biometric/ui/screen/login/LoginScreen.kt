@@ -174,17 +174,6 @@ fun NavGraphBuilder.addLoginRoute(navController: NavController) {
     }
 }
 
-@Composable
-@ExperimentalLifecycleComposeApi
-@Preview(name = "Login Preview")
-fun LoginScreenPreview() {
-    BiometricAppTheme {
-        Surface(Modifier.fillMaxSize()) {
-            LoginScreen()
-        }
-    }
-}
-
 fun createPromptInfo(purpose: CryptoPurpose, resources: Resources): BiometricPrompt.PromptInfo {
     return if (purpose == CryptoPurpose.Encryption) {
         BiometricPrompt.PromptInfo.Builder()

@@ -6,7 +6,6 @@ import androidx.biometric.BiometricPrompt.CryptoObject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mzzlab.sample.biometric.R
-import com.mzzlab.sample.biometric.common.AuthContext
 import com.mzzlab.sample.biometric.common.CryptoPurpose
 import com.mzzlab.sample.biometric.common.getResult
 import com.mzzlab.sample.biometric.common.switch

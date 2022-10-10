@@ -1,7 +1,5 @@
 package com.mzzlab.sample.biometric.ui.screen.login
 
-import com.mzzlab.sample.biometric.common.AuthContext
-
 data class LoginUIState (
     // username and password field values
     val usernameField: String = "",
