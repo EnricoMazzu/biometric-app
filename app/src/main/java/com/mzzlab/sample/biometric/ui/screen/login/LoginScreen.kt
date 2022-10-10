@@ -1,5 +1,6 @@
 package com.mzzlab.sample.biometric.ui.screen.login
 
+import android.content.res.Resources
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -8,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,10 +38,13 @@ fun LoginScreen(
     onUserLoginReady: () -> Unit = {},
 ) {
     val uiState: LoginUIState by viewModel.uiState.collectAsStateWithLifecycle()
+    val navigateToHome by remember(uiState) {
+        derivedStateOf { uiState.loggedIn && !uiState.askBiometricEnrollment }
+    }
     val focusManager = LocalFocusManager.current
 
-    if(uiState.loggedIn && !uiState.askBiometricEnrollment){
-        LaunchedEffect(key1 = Unit){
+    if (navigateToHome) {
+        LaunchedEffect(key1 = Unit) {
             onUserLoginReady()
         }
     }
@@ -56,8 +61,9 @@ fun LoginScreen(
     )
 
     uiState.authContext?.let { auth ->
-        LaunchedEffect(key1 = auth){
-            val promptInfo = createPromptInfo(auth.purpose)
+        val resources = LocalContext.current.resources
+        LaunchedEffect(key1 = auth) {
+            val promptInfo = createPromptInfo(auth.purpose, resources)
             promptContainerState.authenticate(promptInfo, auth.cryptoObject)
         }
     }
@@ -108,28 +114,27 @@ fun LoginScreen(
 
         FormSpacer()
 
-        UseBiometricLoginButton (
+        UseBiometricLoginButton(
             visible = uiState.canLoginWithBiometry,
             onClick = {
                 viewModel.requireBiometricLogin()
             }
         )
-
     }
 }
 
 @Composable
-fun FormSpacer(){
+fun FormSpacer() {
     Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable
 fun UseBiometricLoginButton(
     modifier: Modifier = Modifier,
-    visible:Boolean,
-    onClick:() -> Unit
+    visible: Boolean,
+    onClick: () -> Unit
 ) {
-    if(visible){
+    if (visible) {
         OutlinedButton(
             modifier = modifier,
             onClick = onClick
@@ -147,12 +152,11 @@ fun UseBiometricLoginButton(
 }
 
 
-
 @ExperimentalLifecycleComposeApi
 fun NavGraphBuilder.addLoginRoute(navController: NavController) {
     composable(
         route = LoginRoute.route
-    ){
+    ) {
         val viewModel: LoginViewModel = hiltViewModel()
         LoginScreen(
             modifier = Modifier.fillMaxSize(),
@@ -173,26 +177,26 @@ fun NavGraphBuilder.addLoginRoute(navController: NavController) {
 @Composable
 @ExperimentalLifecycleComposeApi
 @Preview(name = "Login Preview")
-fun LoginScreenPreview(){
+fun LoginScreenPreview() {
     BiometricAppTheme {
-       Surface(Modifier.fillMaxSize()) {
-           LoginScreen()
-       }
+        Surface(Modifier.fillMaxSize()) {
+            LoginScreen()
+        }
     }
 }
 
-fun createPromptInfo(purpose: CryptoPurpose): BiometricPrompt.PromptInfo {
-    return if(purpose == CryptoPurpose.Encryption){
+fun createPromptInfo(purpose: CryptoPurpose, resources: Resources): BiometricPrompt.PromptInfo {
+    return if (purpose == CryptoPurpose.Encryption) {
         BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Enroll your fingerprint ?")
-            .setSubtitle("Authenticate to enroll your credential")
-            .setNegativeButtonText("Cancel")
+            .setTitle(resources.getString(R.string.prompt_title_enroll_token))
+            .setSubtitle(resources.getString(R.string.prompt_subtitle_enroll_token))
+            .setNegativeButtonText(resources.getString(R.string.prompt_cancel))
             .build()
-    }else{
+    } else {
         BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Login with Fingerprint")
-            .setSubtitle("Log in using your biometric credential")
-            .setNegativeButtonText("Cancel")
+            .setTitle(resources.getString(R.string.prompt_title_login))
+            .setSubtitle(resources.getString(R.string.prompt_subtitle_login))
+            .setNegativeButtonText(resources.getString(R.string.prompt_cancel))
             .build()
     }
 }

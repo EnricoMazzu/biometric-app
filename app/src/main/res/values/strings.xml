@@ -21,4 +21,10 @@
     <string name="msg_error_generic">Ops, something went wrong</string>
     <string name="msg_error_key_permanently_invalidated">A new enrollment is required</string>
     <string name="msg_error_key_init_fail">Unable to initiate biometric operation</string>
+    <string name="msg_error_username_password_required">Username and password required</string>
+    <string name="prompt_title_enroll_token">Enable Biometric Login?</string>
+    <string name="prompt_subtitle_enroll_token">Authenticate yourself to enroll your credential</string>
+    <string name="prompt_cancel">Cancel</string>
+    <string name="prompt_title_login">Biometric Login</string>
+    <string name="prompt_subtitle_login">Login using your biometric credentials</string>
 </resources>

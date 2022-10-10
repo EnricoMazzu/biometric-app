@@ -1,5 +1,6 @@
 package com.mzzlab.sample.biometric.ui.screen.login
 
+import androidx.annotation.StringRes
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.CryptoObject
 import androidx.lifecycle.ViewModel
@@ -27,14 +28,12 @@ class LoginViewModel @Inject constructor(
     private val biometricRepository: BiometricRepository
 ) : ViewModel() {
 
-    private val _uiState: MutableStateFlow<LoginUIState> by lazy {
-        MutableStateFlow(
-            LoginUIState(
-                loggedIn = userRepository.isUserLoggedIn.value
-            )
+    private val _uiState: MutableStateFlow<LoginUIState> = MutableStateFlow(
+        LoginUIState(
+            loggedIn = userRepository.isUserLoggedIn.value
         )
-    }
-    val uiState: StateFlow<LoginUIState> by lazy { _uiState.asStateFlow() }
+    )
+    val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -60,12 +59,14 @@ class LoginViewModel @Inject constructor(
                 )
         }
         // update state
-        _uiState.value = currentState.copy(
-            loggedIn = isLoggedIn,
-            canLoginWithBiometry = canLoginWithBiometricToken(biometricInfo),
-            askBiometricEnrollment = askBiometricEnrollment,
-            authContext = authContext
-        )
+        _uiState.update {
+            it.copy(
+                loggedIn = isLoggedIn,
+                canLoginWithBiometry = canLoginWithBiometricToken(biometricInfo),
+                askBiometricEnrollment = askBiometricEnrollment,
+                authContext = authContext
+            )
+        }
     }
 
     private fun canLoginWithBiometricToken(biometricInfo: BiometricInfo) =
@@ -92,6 +93,10 @@ class LoginViewModel @Inject constructor(
     fun doLogin() {
         val username = _uiState.value.usernameField
         val password = _uiState.value.passwordField
+        if (username.isBlank() || password.isBlank()) {
+            showMessage(R.string.msg_error_username_password_required)
+            return
+        }
         viewModelScope.launch {
             userRepository.login(username, password)
         }
@@ -100,10 +105,12 @@ class LoginViewModel @Inject constructor(
     fun onAuthSucceeded(cryptoObject: CryptoObject?) {
         Timber.i("On Auth Succeeded $cryptoObject")
         val pendingAuthContext = uiState.value.authContext
-        _uiState.value = uiState.value.copy(
-            askBiometricEnrollment = false,
-            authContext = null
-        )
+        _uiState.update {
+            it.copy(
+                askBiometricEnrollment = false,
+                authContext = null
+            )
+        }
         viewModelScope.launch {
             pendingAuthContext?.let { authContext ->
                 if (authContext.purpose == CryptoPurpose.Encryption) {
@@ -118,7 +125,7 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun startBiometricTokenEnrollment(cryptoObject: CryptoObject) {
         val result = getResult { biometricRepository.fetchAndStoreEncryptedToken(cryptoObject) }
-        result.switch (
+        result.switch(
             success = { Timber.i("fetchAndStoreEncryptedToken done") },
             error = {
                 it?.let { ex ->
@@ -139,9 +146,9 @@ class LoginViewModel @Inject constructor(
         }.switch(
             success = { Timber.d("Login Done") },
             error = { th ->
-                if(th is InvalidCryptoLayerException){
+                if (th is InvalidCryptoLayerException) {
                     _uiState.update { it.copy(canLoginWithBiometry = false) }
-                }else{
+                } else {
                     handleError(th)
                 }
             }
@@ -160,31 +167,31 @@ class LoginViewModel @Inject constructor(
             BiometricPrompt.ERROR_USER_CANCELED,
             BiometricPrompt.ERROR_CANCELED,
             BiometricPrompt.ERROR_NEGATIVE_BUTTON -> {
-                _uiState.value =
-                    uiState.value.copy(askBiometricEnrollment = false, authContext = null)
+                Timber.i("operation is cancelled by user interaction")
             }
             else -> {
-                _uiState.value =
-                    uiState.value.copy(askBiometricEnrollment = false, authContext = null)
                 showMessage(errString.toString())
             }
         }
+        _uiState.update { it.copy(askBiometricEnrollment = false, authContext = null) }
     }
 
     fun requireBiometricLogin() {
         viewModelScope.launch {
             getResult { prepareAuthContext(CryptoPurpose.Decryption) }
                 .switch(
-                    success = {
-                        _uiState.value = uiState.value.copy(
-                            askBiometricEnrollment = false,
-                            authContext = it
-                        )
+                    success = { authCtx ->
+                        _uiState.update {
+                            it.copy(
+                                askBiometricEnrollment = false,
+                                authContext = authCtx
+                            )
+                        }
                     },
                     error = {
                         it?.let { ex ->
                             if (ex is InvalidCryptoLayerException) {
-                                handleInvalidCryptoException(ex, false)
+                                handleInvalidCryptoException(ex, true)
                             } else {
                                 handleError(ex)
                             }
@@ -218,9 +225,16 @@ class LoginViewModel @Inject constructor(
         } else {
             SnackbarManager.showMessage(R.string.msg_error_generic)
         }
+        if(isLogin){
+            _uiState.update { it.copy(canLoginWithBiometry = false)}
+        }
     }
 
     private fun showMessage(message: String) {
         SnackbarManager.showMessage(message)
+    }
+
+    private fun showMessage(@StringRes messageTextId: Int) {
+        SnackbarManager.showMessage(messageTextId)
     }
 }
