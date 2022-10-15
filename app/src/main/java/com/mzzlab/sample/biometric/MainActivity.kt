@@ -7,8 +7,8 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.mzzlab.sample.biometric.ui.App
 import dagger.hilt.android.AndroidEntryPoint
 
-@ExperimentalLifecycleComposeApi
 @AndroidEntryPoint
+@ExperimentalLifecycleComposeApi
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

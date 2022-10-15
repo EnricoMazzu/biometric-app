@@ -26,14 +26,12 @@ class BiometricRepositoryImpl(
 
 ): BiometricRepository {
 
-    private suspend fun checkInternalWithCrypto(
-        biometricAuthStatus: BiometricAuthStatus = readBiometricAuthStatus()
-    ): ValidationResult = withContext(dispatcher) {
+    private suspend fun checkInternalWithCrypto(): ValidationResult = withContext(dispatcher) {
         val validationResult = cryptoEngine.validate()
         when(validationResult){
             ValidationResult.KEY_PERMANENTLY_INVALIDATED,
             ValidationResult.KEY_INIT_FAIL -> {
-                // this is a policy that we have decided to implement: you have to
+                // Delete data immediatelly is a policy that we have decided to implement: you have always to
                 // notify this condition to the user
                 clearCryptoAndData()
             }
@@ -44,7 +42,7 @@ class BiometricRepositoryImpl(
 
     override suspend fun getBiometricInfo(): BiometricInfo = withContext(dispatcher) {
         val biometricAuthStatus = readBiometricAuthStatus()
-        val cryptoValidationResult = checkInternalWithCrypto(biometricAuthStatus)
+        val cryptoValidationResult = checkInternalWithCrypto()
         val isBiometricTokenPresent = isTokenPresent();
         BiometricInfo(
             biometricTokenPresent = isBiometricTokenPresent,
@@ -125,6 +123,10 @@ class BiometricRepositoryImpl(
        keyValueStorage.clear()
     }
 
+    /**
+     * Validate the crypto layer. In case of invalid status, this method
+     * throws an [InvalidCryptoLayerException]
+     */
     private suspend fun validateCryptoLayer() {
         val status = checkInternalWithCrypto()
         if(status != ValidationResult.OK){

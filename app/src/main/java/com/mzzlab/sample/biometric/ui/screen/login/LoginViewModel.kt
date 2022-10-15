@@ -53,6 +53,7 @@ class LoginViewModel @Inject constructor(
                 .switch(
                     success = { authContext = it },
                     error = {
+                        // In this case we decide to not show and error to the end user.
                         Timber.e(it)
                     }
                 )
@@ -99,6 +100,20 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.login(username, password)
         }
+    }
+
+    fun onAuthError(errorCode: Int, errString: String) {
+        when (errorCode) {
+            BiometricPrompt.ERROR_USER_CANCELED,
+            BiometricPrompt.ERROR_CANCELED,
+            BiometricPrompt.ERROR_NEGATIVE_BUTTON -> {
+                Timber.i("operation is cancelled by user interaction")
+            }
+            else -> {
+                showMessage(errString)
+            }
+        }
+        _uiState.update { it.copy(askBiometricEnrollment = false, authContext = null) }
     }
 
     fun onAuthSucceeded(cryptoObject: CryptoObject?) {
@@ -161,20 +176,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun onAuthError(errorCode: Int, errString: CharSequence) {
-        when (errorCode) {
-            BiometricPrompt.ERROR_USER_CANCELED,
-            BiometricPrompt.ERROR_CANCELED,
-            BiometricPrompt.ERROR_NEGATIVE_BUTTON -> {
-                Timber.i("operation is cancelled by user interaction")
-            }
-            else -> {
-                showMessage(errString.toString())
-            }
-        }
-        _uiState.update { it.copy(askBiometricEnrollment = false, authContext = null) }
-    }
-
     fun requireBiometricLogin() {
         viewModelScope.launch {
             getResult { prepareAuthContext(CryptoPurpose.Decryption) }
@@ -215,7 +216,10 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun handleInvalidCryptoException(ex: InvalidCryptoLayerException, isLogin: Boolean) {
+    private fun handleInvalidCryptoException(
+        ex: InvalidCryptoLayerException,
+        isLogin: Boolean
+    ) {
         Timber.e(ex, "handleInvalidCryptoException... isLogin: $isLogin")
         if (ex.isKeyPermanentlyInvalidated) {
             SnackbarManager.showMessage(R.string.msg_error_key_permanently_invalidated)
@@ -225,6 +229,7 @@ class LoginViewModel @Inject constructor(
             SnackbarManager.showMessage(R.string.msg_error_generic)
         }
         if(isLogin){
+            //update to inform ui that login with biometry is not available
             _uiState.update { it.copy(canLoginWithBiometry = false)}
         }
     }

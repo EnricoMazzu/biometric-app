@@ -5,7 +5,7 @@ import com.mzzlab.sample.biometric.common.CryptoPurpose
 import com.mzzlab.sample.biometric.data.model.BiometricInfo
 
 /**
- * Represent the repository for our biometric related data
+ * Represent the repository for our biometric related data / info
  */
 interface BiometricRepository {
 

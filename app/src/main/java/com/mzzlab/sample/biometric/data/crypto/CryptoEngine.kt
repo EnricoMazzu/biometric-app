@@ -46,7 +46,6 @@ class CryptoEngine {
         }
     }
 
-
     private fun warmup() {
         val bytes = ByteArray(16)
         Random.nextBytes(bytes)

@@ -19,7 +19,7 @@ fun BiometricPromptContainer(
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 Timber.e("onAuthenticationError: $errorCode : $errString")
                 state.resetShowFlag()
-                onAuthError(AuthError(errorCode,errString))
+                onAuthError(AuthError(errorCode, errString.toString()))
             }
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -71,5 +71,5 @@ fun rememberPromptContainerState(): BiometricPromptContainerState = remember {
 
 data class AuthError(
     val errorCode: Int,
-    val errString: CharSequence
+    val errString: String
 )
