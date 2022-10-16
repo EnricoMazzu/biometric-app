@@ -31,7 +31,7 @@ class BiometricRepositoryImpl(
         when(validationResult){
             ValidationResult.KEY_PERMANENTLY_INVALIDATED,
             ValidationResult.KEY_INIT_FAIL -> {
-                // Delete data immediatelly is a policy that we have decided to implement: you have always to
+                // Delete data immediately is a policy that we have decided to implement: you have always to
                 // notify this condition to the user
                 clearCryptoAndData()
             }

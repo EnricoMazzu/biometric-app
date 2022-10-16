@@ -1,3 +1,6 @@
+/**
+ * Define versions
+ */
 object Versions {
     const val appAndLibPlugin = "7.3.0"
     const val gradle = "7.2.1"
@@ -14,6 +17,9 @@ object Versions {
     const val hiltNavigationCompose = "1.0.0"
 }
 
+/**
+ * Define our dependencies
+ */
 object Dependencies {
     const val androidxCoreKtx = "androidx.core:core-ktx:${Versions.coreKotlin}"
     const val androidxLifecycleRuntimeKtx =
@@ -46,11 +52,17 @@ object Dependencies {
         "androidx.compose.ui:ui-test-manifest:${Versions.composeUi}"
 }
 
+/**
+ * Define classpath to add in build scripts
+ */
 object BuildScripts {
     const val gradle = "com.android.tools.build:gradle:${Versions.gradle}"
     const val hilt = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
 }
 
+/**
+ * Define gradle plugin to use
+ */
 object PluginsDef {
     const val androidApplication = "com.android.application"
     const val androidLibrary = "com.android.library"
